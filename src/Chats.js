@@ -85,26 +85,28 @@ const Chats = () => {
         color: '#f3f4f6',
         borderColor: '#27272a',
         inputBg: '#27272a',
-        msgBg: '#27272a',
-        msgOtherBg: '#334155',
+        msgBg: '#005c4b',
+        msgOtherBg: '#222b45',
         avatarBg: '#6366f1',
         avatarOtherBg: '#64748b',
         btnBg: '#6366f1',
         btnColor: '#fff',
         shadow: '0 2px 8px rgba(0,0,0,0.25)',
+        bubbleShadow: '0 2px 8px rgba(0,0,0,0.25)',
       }
     : {
-        background: '#f8fafc',
+        background: '#ece5dd',
         color: '#22223b',
         borderColor: '#e3e8f0',
         inputBg: '#fff',
-        msgBg: '#d1e7dd',
-        msgOtherBg: '#e2e3e5',
+        msgBg: '#d9fdd3', // WhatsApp green
+        msgOtherBg: '#fff',
         avatarBg: '#4f8cff',
         avatarOtherBg: '#64748b',
         btnBg: '#3b82f6',
         btnColor: '#fff',
         shadow: '0 2px 8px rgba(0,0,0,0.08)',
+        bubbleShadow: '0 1px 2px rgba(0,0,0,0.08)',
       };
 
   // On mount, set user online
@@ -140,6 +142,7 @@ const Chats = () => {
         minHeight: '100vh',
         transition: 'background 0.3s, color 0.3s',
         fontFamily: 'Segoe UI, sans-serif',
+        background: theme.background,
       }}
     >
       <div className="row justify-content-center">
@@ -204,55 +207,97 @@ const Chats = () => {
                 overflowY: 'auto',
                 border: `1px solid ${theme.borderColor}`,
                 marginBottom: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
               }}
             >
-              {messages.map((msg) => {
-                const isCurrentUser =
-                  (auth.currentUser.displayName &&
-                    msg.user === auth.currentUser.displayName) ||
-                  msg.user === auth.currentUser.email;
-                return (
-                  <div
-                    key={msg.id}
-                    className={`d-flex mb-2 ${isCurrentUser ? 'flex-row-reverse' : ''}`}
-                    style={{ alignItems: 'flex-end' }}
-                  >
+              <div className="d-flex flex-column" style={{ width: '100%' }}>
+                {messages.map((msg) => {
+                  const isCurrentUser =
+                    (auth.currentUser.displayName &&
+                      msg.user === auth.currentUser.displayName) ||
+                    msg.user === auth.currentUser.email;
+                  return (
                     <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        margin: '0 10px',
-                        background: isCurrentUser ? theme.avatarBg : theme.avatarOtherBg,
-                        color: '#fff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '0.95rem',
-                        textTransform: 'uppercase',
-                      }}
+                      key={msg.id}
+                      className={`d-flex mb-2 ${isCurrentUser ? 'justify-content-end' : 'justify-content-start'}`}
+                      style={{ alignItems: 'flex-end' }}
                     >
-                      {getInitials(msg.user)}
+                      {!isCurrentUser && (
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            marginRight: 8,
+                            background: theme.avatarOtherBg,
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {getInitials(msg.user)}
+                        </div>
+                      )}
+                      <div
+                        className={`px-3 py-2 ${isCurrentUser ? 'ms-auto' : ''}`}
+                        style={{
+                          background: isCurrentUser ? theme.msgBg : theme.msgOtherBg,
+                          borderRadius: isCurrentUser
+                            ? '16px 16px 4px 16px'
+                            : '16px 16px 16px 4px',
+                          maxWidth: '75%',
+                          color: theme.color,
+                          wordBreak: 'break-word',
+                          boxShadow: theme.bubbleShadow,
+                          marginLeft: isCurrentUser ? 'auto' : 0,
+                          marginRight: !isCurrentUser ? 'auto' : 0,
+                          border: isCurrentUser
+                            ? '1px solid #b2f5ea'
+                            : '1px solid #e3e8f0',
+                        }}
+                      >
+                        <strong
+                          style={{
+                            fontSize: '0.85rem',
+                            color: isCurrentUser ? '#008069' : '#4f8cff',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {msg.user}
+                        </strong>
+                        <p className="mb-0" style={{ fontSize: '1.05em' }}>{msg.text}</p>
+                      </div>
+                      {isCurrentUser && (
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            marginLeft: 8,
+                            background: theme.avatarBg,
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {getInitials(msg.user)}
+                        </div>
+                      )}
                     </div>
-                    <div
-                      className="px-3 py-2"
-                      style={{
-                        background: isCurrentUser ? theme.msgBg : theme.msgOtherBg,
-                        borderRadius: 12,
-                        maxWidth: '70%',
-                        color: theme.color,
-                        wordBreak: 'break-word',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                      }}
-                    >
-                      <strong style={{ fontSize: '0.85rem' }}>{msg.user}</strong>
-                      <p className="mb-0">{msg.text}</p>
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
             <div className="px-3 pb-2">
